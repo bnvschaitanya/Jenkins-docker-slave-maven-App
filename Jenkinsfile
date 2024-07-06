@@ -32,9 +32,12 @@ pipeline {
                 label 'myslave3'
             }
             steps {
-                echo 'Starting deploy stage'
+                echo 'Starting to deploy stage'
                 unstash
                 sh 'java -jar target/*.jar'
+                // Commands to deploy the application
+                sh 'scp target/myapp.jar user@server:/path/to/deploy'
+                sh 'ssh user@server "cd /path/to/deploy && ./deploy.sh"'
             }
         }
     }
