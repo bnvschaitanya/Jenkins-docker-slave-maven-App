@@ -1,44 +1,56 @@
 pipeline {
     agent none
     parameters {
-        string(name: 'x', defaultValue: 'my life', description: 'Enter your name: ')
+        string(name: 'NAME', defaultValue: 'my life', description: 'Enter your name: ')
     }
     stages {
-        stage('Build') {
+        stage('Checkout') {
             agent {
                 label 'myslave1'
             }
             steps {
-                echo 'Starting build stage'
+                echo 'Starting checkout stage'
                 git url: '---git url---', branch: 'master'
                 sh 'ls -l'
                 sh 'pwd'
-                stash includes: 'pom.xml', name: 'myapp'
+                stash includes: 'pom.xml, src/**', name: 'sourceCode'
             }
         }
-        stage('Test') {
+        stage('Build and Package') {
             agent {
                 label 'myslave2'
             }
             steps {
-                echo 'Starting test stage'
-                unstash 'myapp'
-                sh 'mvn package'
-                stash includes: 'target/*.jar', name: 'my.jar'
+                echo 'Starting build and package stage'
+                unstash 'sourceCode'
+                sh 'mvn clean package'
+                stash includes: 'target/*.jar', name: 'myJar'
             }
         }
-        stage('Deploy') {
+        stage('Deploy Package') {
             agent {
                 label 'myslave3'
             }
             steps {
-                echo 'Starting to deploy stage'
-                unstash
-                sh 'java -jar target/*.jar'
+                echo 'Starting deploy package stage'
+                unstash 'myJar'
                 // Commands to deploy the application
-                sh 'scp target/myapp.jar user@server:/path/to/deploy'
+                sh 'scp target/*.jar user@server:/path/to/deploy'
                 sh 'ssh user@server "cd /path/to/deploy && ./deploy.sh"'
             }
+        }
+    }
+    post {
+        always {
+            echo 'Cleaning up...'
+            // Clean up commands
+            deleteDir()
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
