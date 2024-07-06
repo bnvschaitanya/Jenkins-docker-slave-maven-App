@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Build') {
             agent {
-                label 'myslavemaven'
+                label 'myslave1'
             }
             steps {
                 echo 'Starting build stage'
@@ -18,7 +18,7 @@ pipeline {
         }
         stage('Test') {
             agent {
-                label 'myslavemaven'
+                label 'myslave2'
             }
             steps {
                 echo 'Starting test stage'
@@ -29,7 +29,7 @@ pipeline {
         }
         stage('Deploy') {
             agent {
-                label 'myslavemaven'
+                label 'myslave3'
             }
             steps {
                 echo 'Starting deploy stage'
