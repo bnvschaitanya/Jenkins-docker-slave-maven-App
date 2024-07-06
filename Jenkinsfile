@@ -9,7 +9,7 @@ pipeline {
                 label 'myslave1'
             }
             steps {
-                echo 'Starting checkout stage'
+                echo "Starting checkout stage for ${params.NAME}"
                 git url: '---git url---', branch: 'master'
                 sh 'ls -l'
                 sh 'pwd'
@@ -21,7 +21,7 @@ pipeline {
                 label 'myslave2'
             }
             steps {
-                echo 'Starting build and package stage'
+                echo "Starting build and package stage for ${params.NAME}"
                 unstash 'sourceCode'
                 sh 'mvn clean package'
                 stash includes: 'target/*.jar', name: 'myJar'
@@ -32,7 +32,7 @@ pipeline {
                 label 'myslave3'
             }
             steps {
-                echo 'Starting deploy package stage'
+                echo "Starting deploy package stage for ${params.NAME}"
                 unstash 'myJar'
                 // Commands to deploy the application
                 sh 'scp target/*.jar user@server:/path/to/deploy'
@@ -47,10 +47,10 @@ pipeline {
             deleteDir()
         }
         success {
-            echo 'Pipeline completed successfully!'
+            echo "Pipeline completed successfully for ${params.NAME}!"
         }
         failure {
-            echo 'Pipeline failed!'
+            echo "Pipeline failed for ${params.NAME}!"
         }
     }
 }
