@@ -34,8 +34,8 @@ pipeline {
             steps {
                 echo "Starting deploy package stage for ${params.NAME}"
                 unstash 'myJar'
-                // Use Maven to deploy the package
-                sh 'mvn deploy'
+                sh 'scp target/*.jar user@server:/path/to/deploy'
+                sh 'ssh user@server "cd /path/to/deploy && ./deploy.sh"'
             }
         }
     }
